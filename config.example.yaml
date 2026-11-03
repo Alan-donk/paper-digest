@@ -1,0 +1,28 @@
+# Copy this file to config.yaml, then customize it for your own paper digest.
+
+# Topics to search on arXiv. Add, remove, or replace entries with your interests.
+keywords:
+  - large language models
+  - multimodal learning
+  - computer vision
+
+# Retrieval and ranking settings
+max_results_per_keyword: 20
+top_n: 5
+min_score: 4.0
+lookback_days: 7
+
+# arXiv categories that receive an additional relevance score. Leave empty for no preference.
+required_categories:
+  - cs.AI
+  - cs.LG
+  - cs.CV
+
+# Email appearance and arXiv query settings
+email_subject_prefix: "[Daily Paper Digest]"
+sort_by: submittedDate  # submittedDate, updatedDate, or relevance
+
+# Be polite to the arXiv API; adjust only when necessary.
+arxiv_delay_seconds: 0.6
+arxiv_max_retry_attempts: 2
+arxiv_retry_delay_seconds: 1.0

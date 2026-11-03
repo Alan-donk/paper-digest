@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Paper Digest</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f3f6fb;
+        --card: #ffffff;
+        --text: #18212f;
+        --muted: #66768a;
+        --line: #d8e1ee;
+        --accent: #0f6cbd;
+        --accent-soft: #e9f3ff;
+        --tag: #eef4ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 24px;
+        background: linear-gradient(180deg, #eef4fb 0%, #f7f9fc 100%);
+        color: var(--text);
+        font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+        line-height: 1.65;
+      }
+
+      .container {
+        max-width: 980px;
+        margin: 0 auto;
+      }
+
+      .hero {
+        background: linear-gradient(135deg, #0e4f8f 0%, #1a6cbd 100%);
+        color: #ffffff;
+        border-radius: 18px;
+        padding: 28px 32px;
+        box-shadow: 0 18px 50px rgba(22, 49, 87, 0.18);
+      }
+
+      .hero h1 {
+        margin: 0 0 10px 0;
+        font-size: 30px;
+        line-height: 1.2;
+      }
+
+      .hero p {
+        margin: 6px 0;
+        opacity: 0.95;
+      }
+
+      .keywords {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .chip {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.16);
+        font-size: 13px;
+      }
+
+      .summary {
+        margin: 18px 0 22px;
+        padding: 16px 18px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(6px);
+      }
+
+      .paper-card {
+        margin-top: 18px;
+        padding: 24px;
+        border-radius: 18px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        box-shadow: 0 10px 28px rgba(35, 50, 78, 0.08);
+      }
+
+      .paper-title {
+        margin: 0 0 8px 0;
+        font-size: 22px;
+        line-height: 1.35;
+      }
+
+      .paper-title a {
+        color: var(--text);
+        text-decoration: none;
+      }
+
+      .paper-title a:hover {
+        color: var(--accent);
+      }
+
+      .meta,
+      .section {
+        margin-top: 14px;
+      }
+
+      .meta-line {
+        margin: 4px 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .pill {
+        display: inline-block;
+        padding: 5px 10px;
+        background: var(--tag);
+        color: #24456f;
+        border-radius: 999px;
+        font-size: 12px;
+      }
+
+      .section h3 {
+        margin: 0 0 8px;
+        font-size: 15px;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .section p,
+      .section ul {
+        margin: 0;
+      }
+
+      .section ul {
+        padding-left: 20px;
+      }
+
+      .links a {
+        color: var(--accent);
+        margin-right: 14px;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .empty {
+        padding: 24px;
+        text-align: center;
+        color: var(--muted);
+      }
+
+      @media (max-width: 640px) {
+        body {
+          padding: 16px;
+        }
+
+        .hero,
+        .paper-card {
+          padding: 20px;
+        }
+
+        .hero h1 {
+          font-size: 24px;
+        }
+
+        .paper-title {
+          font-size: 19px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <section class="hero">
+        <h1>Daily arXiv Paper Digest</h1>
+        <p>日期：{{ digest_date }}</p>
+        <p>今日共筛选出 {{ total_items }} 篇论文</p>
+        <div class="keywords">
+          {% for keyword in keywords %}
+          <span class="chip">{{ keyword }}</span>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="summary">
+        <strong>摘要说明：</strong>
+        本邮件根据关键词相关性、论文新鲜度以及元数据完整度做基础筛选，并结合结构化摘要输出，帮助你快速浏览今日值得关注的 arXiv 论文。
+      </section>
+
+      {% if items %}
+        {% for item in items %}
+        <article class="paper-card">
+          <h2 class="paper-title">
+            <a href="{{ item.paper.abs_url }}">{{ item.paper.title }}</a>
+          </h2>
+
+          <div class="links">
+            <a href="{{ item.paper.abs_url }}">Abstract</a>
+            <a href="{{ item.paper.pdf_url }}">PDF</a>
+          </div>
+
+          <div class="meta">
+            <p class="meta-line"><strong>评分：</strong>{{ "%.2f"|format(item.score) }}</p>
+            <p class="meta-line"><strong>作者：</strong>{{ item.paper.authors | join(", ") }}</p>
+            <p class="meta-line"><strong>发布时间：</strong>{{ item.paper.published.strftime("%Y-%m-%d") }}</p>
+            <p class="meta-line"><strong>更新时间：</strong>{{ item.paper.updated.strftime("%Y-%m-%d") }}</p>
+            <p class="meta-line"><strong>分类：</strong>{{ item.paper.categories | join(", ") }}</p>
+            {% if item.matched_keywords %}
+            <p class="meta-line"><strong>命中关键词：</strong>{{ item.matched_keywords | join(", ") }}</p>
+            {% endif %}
+            {% if item.paper.doi %}
+            <p class="meta-line"><strong>DOI：</strong>{{ item.paper.doi }}</p>
+            {% endif %}
+            {% if item.paper.journal_ref %}
+            <p class="meta-line"><strong>Journal Ref：</strong>{{ item.paper.journal_ref }}</p>
+            {% endif %}
+          </div>
+
+          <div class="pill-row">
+            {% for category in item.paper.categories %}
+            <span class="pill">{{ category }}</span>
+            {% endfor %}
+          </div>
+
+          <section class="section">
+            <h3>研究问题</h3>
+            <p>{{ item.summary.research_problem }}</p>
+          </section>
+
+          <section class="section">
+            <h3>核心创新点</h3>
+            <ul>
+              {% for point in item.summary.innovation %}
+              <li>{{ point }}</li>
+              {% endfor %}
+            </ul>
+          </section>
+
+          <section class="section">
+            <h3>方法</h3>
+            <p>{{ item.summary.method }}</p>
+          </section>
+
+          <section class="section">
+            <h3>研究意义</h3>
+            <p>{{ item.summary.significance }}</p>
+          </section>
+
+          <section class="section">
+            <h3>一句话总结</h3>
+            <p>{{ item.summary.one_sentence_takeaway }}</p>
+          </section>
+        </article>
+        {% endfor %}
+      {% else %}
+      <section class="paper-card empty">
+        今天没有筛选出满足条件的新论文。你可以适当放宽关键词、延长 `lookback_days`，或降低 `min_score` 后重试。
+      </section>
+      {% endif %}
+    </div>
+  </body>
+  </html>
